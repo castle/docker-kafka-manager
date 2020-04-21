@@ -1,4 +1,5 @@
-FROM openjdk@sha256:33f68c6230af30dd104c838f54295a6765b5609c81719be9cf5b24b1e950b899 AS build
+# openjdk:15-buster
+FROM openjdk@sha256:bec9422b2a1cdef0e233967ae515ca60635437eb178a17e910d3c27cdc951511 AS build
 
 ARG VERSION
 
@@ -10,11 +11,12 @@ RUN mkdir -p $KAFKA_MANAGER_SRC_DIR \
     && cd $KAFKA_MANAGER_SRC_DIR \
     && echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt \
     && ./sbt clean dist \
-    && unzip -d ./builded ./target/universal/kafka-manager-${VERSION}.zip \
-    && mv -T ./builded/kafka-manager-${VERSION} /kafka-manager \
+    && unzip -d ./builded ./target/universal/cmak-${VERSION}.zip \
+    && mv -T ./builded/cmak-${VERSION} /kafka-manager \
     && rm -rf $KAFKA_MANAGER_SRC_DIR
 
-FROM openjdk@sha256:f362b165b870ef129cbe730f29065ff37399c0aa8bcab3e44b51c302938c9193
+# openjdk:15-alpine
+FROM openjdk@sha256:477d0b3406e8bb54bf1852f21acf908c7f43c37b3bcdf65bb6709cd71caad4cf
 
 LABEL maintainer="Castle Intelligence, Inc. https://github.com/castle/docker-kafka-manager"
 
@@ -24,4 +26,4 @@ COPY --from=build /kafka-manager /kafka-manager
 WORKDIR /kafka-manager
 
 EXPOSE 9000
-ENTRYPOINT ["./bin/kafka-manager", "-Dapplication.home=."]
+ENTRYPOINT ["./bin/cmak", "-Dapplication.home=."]
